@@ -16,19 +16,25 @@ import { firebase } from '@react-native-firebase/auth';
 const { TwitterAuthProvider } = firebase.auth;
 
 
+
+
 const Constants = {
   //Dev Parse keys
   TWITTER_COMSUMER_KEY: "Es053ZYyEDsw9hMnuXQV0vtRu",
   TWITTER_CONSUMER_SECRET: "9WMWaFxVogq3AxLTDs1CTBqV9LiYWvyq3Fwtuxkxh3U2JPQfil"
 }
  
-
+///
 export default class TwitterButton extends Component {
   state = {
     isLoggedIn: false
   }
-
+  
   _twitterSignIn = async () => {
+      
+    const a = 1
+
+
     await RNTwitterSignIn.init(Constants.TWITTER_COMSUMER_KEY, Constants.TWITTER_CONSUMER_SECRET)
 
     try {
