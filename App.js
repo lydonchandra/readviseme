@@ -35,7 +35,6 @@ const firebaseCredentials = Platform.select({
 
 type Props = {};
 
-
 import { Epub, Streamer } from "epubjs-rn";
 import {TopBar} from './src/components/TopBar';
 
@@ -54,22 +53,26 @@ export default function App () {
 
   const [book, setBook] = useState(null)
 
-  useEffect( async () => {
-    const origin = await streamer.start()
-    setOrigin(origin)
-    const srcValue = await streamer.get( url )
-    setSrc( srcValue )
+  useEffect( () => {
+    async function streamerStart() {
+      const origin = await streamer.start()
+      setOrigin(origin)
+      const srcValue = await streamer.get( url )
+      setSrc( srcValue )
+    }
+    // setup async function and call it immediately, otherwise got warning if doing
+    // useEffect( async() => {}
+    streamerStart()
+
+    
   }, [])
 
   return (
     <View style={styles.container}>
-      <TopBar  />
-
-
+     
       <Epub style={styles.reader}
-        width={400}
-        height={100}
-        
+        height={'100%'}
+
         fontSize={'140%'}
         src={src}
         flow={flow}
@@ -83,19 +86,22 @@ export default function App () {
         }}
         ></Epub>
 
+      <View style={[styles.bar, {top: 0}]} >
+        <TopBar title={title} style={styles.topBar} />
+      </View>
         <TwitterButton style={styles.button} />
     </View>
   )
-
 }
-
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F5FCFF',
+    flexDirection: 'column',
+
+    // justifyContent: 'center',
+    // alignItems: 'center',
+    // backgroundColor: '#F5FCFF',
   },
   welcome: {
     fontSize: 20,
@@ -108,11 +114,29 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   button: {
-    height: 50,
+    height: 40,
+    flex: 1
+
   },
   reader: {
     flex: 1,
+    top: 100,
+    position: "absolute",
+    // marginTop: 200, 
     alignSelf: 'stretch',
     backgroundColor: '#3F3F3C'
   },
+  bar: {
+    position:"absolute",
+    left:0,
+    right:0,
+    height:55
+  },
+
+
+  
+
+  topBar: {
+    height: 100
+  }
 });
