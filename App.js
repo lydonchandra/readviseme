@@ -8,40 +8,23 @@
 
 import React, { Component, useEffect, useState } from 'react';
 import { Platform, StyleSheet, Text, View, NativeModules } from 'react-native';
-
-import firebase from '@react-native-firebase/app';
-import TwitterButton from './TwitterButton';
-
 import StaticServer from 'react-native-static-server';
-
 const RNFetchBlob  = NativeModules.RNFetchBlob
 
-// TODO(you): import any additional firebase services that you require for your app, e.g for auth:
-//    1) install the npm package: `yarn add @react-native-firebase/auth@alpha` - you do not need to
-//       run linking commands - this happens automatically at build time now
-//    2) rebuild your app via `yarn run run:android` or `yarn run run:ios`
-//    3) import the package here in your JavaScript code: `import '@react-native-firebase/auth';`
-//    4) The Firebase Auth service is now available to use here: `firebase.auth().currentUser`
-
-const instructions = Platform.select({
-  ios: 'Press Cmd+R to reload,\nCmd+D or shake for dev menu',
-  android: 'Double tap R on your keyboard to reload,\nShake or press menu button for dev menu',
-});
+import firebase from '@react-native-firebase/app';
+import { firebase as firebaseAuth } from '@react-native-firebase/auth';
+import firestore from '@react-native-firebase/firestore';
 
 const firebaseCredentials = Platform.select({
   ios: 'https://invertase.link/firebase-ios',
   android: 'https://invertase.link/firebase-android',
 })
 
-type Props = {};
-
 import { Epub, Streamer } from "epubjs-rn"
 import {TopBar} from './src/components/TopBar'
 import {Nav} from './src/components/Nav'
-
-import firestore from '@react-native-firebase/firestore';
- 
-// Read the users documents
+import {Settings} from './src/components/Settings'
+import TwitterButton from './TwitterButton';
 
 export default function App () {
 
@@ -55,10 +38,24 @@ export default function App () {
   const [title, setTitle] = useState('')
   const [toc, setToc] = useState([])
   const [booksPaths, setBookPaths] = useState([])
-
   const [book, setBook] = useState(null)
 
   const [isNavVisible, setIsNavVisible] = useState(false)
+  const [isSettingsVisible, setIsSettingsVisible] = useState(false)
+
+  const [user, setUser] = useState()
+  //user 
+  //onAuthStateChanged {"displayName": "lydonchandra", "email": null, "emailVerified": false, "isAnonymous": false, "metadata": {"creationTime": 1578759754137, "lastSignInTime": 1578759754138}, "phoneNumber": null, "photoURL": "https://abs.twimg.com/sticky/default_profile_images/default_profile_normal.png", "providerData": [[Object]], "providerId": "firebase", "uid": "dJRcplbkY1TYevuuA1KdNKnxlJ92"}
+
+  const onAuthStateChanged = (user) => {
+    console.log('--- onAuthStateChanged', user)
+    setUser(user)
+  }
+  useEffect( () => {
+    const subscriber = firebaseAuth.auth().onAuthStateChanged( onAuthStateChanged )
+    return subscriber
+  }, [])
+
 
   useEffect( () => {
     async function streamerStart() {
@@ -73,25 +70,23 @@ export default function App () {
   }, [])
 
 
-  useEffect( () => {
-    async function testFirestore() {
-      const querySnapshot = await firestore()
-        .collection('users')
-        .get();
+  // useEffect( () => {
+  //   async function testFirestore() {
+  //     const querySnapshot = await firestore()
+  //       .collection('users')
+  //       .get();
       
-      console.log('Total users', querySnapshot.size);
-      console.log('User Documents', querySnapshot.docs);
+  //     console.log('Total users', querySnapshot.size);
+  //     console.log('User Documents', querySnapshot.docs);
 
-    }
-
-    testFirestore()
-  }, [])
-
-
+  //   }
+  //   testFirestore()
+  // }, [])
 
   return (
     <View style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between'}}>
      
+      <Settings isVisible={isSettingsVisible} setIsVisible={setIsSettingsVisible} user={user} />
       <View style={{flex: 8, top: 40, paddingBottom: 20}} >
         <Epub
           fontSize={'120%'}
@@ -128,7 +123,15 @@ export default function App () {
         right:0,
         height:55,
         flex: 1}} >
-        <TopBar title={title} onNavButtonPressed={() => setIsNavVisible(true)}  />
+
+        <TopBar title={title} user={user}
+          onNavButtonPressed={() => setIsNavVisible(true)} 
+          onSettingsButtonPressed={() => {
+            setIsSettingsVisible(true)
+          }}
+          onSignInButtonPressed={() => {
+            
+        }}  />
       </View>
 
       <View>
@@ -139,14 +142,12 @@ export default function App () {
                 setLocation(newLoc) }
               } 
         />
-
-
       </View>
 
-      {/* <View style={{flex: 1, height: 20}}>
-        <TwitterButton />
+      <View style={{flex: 1, height: 20}}>
+        { (user == null) && <TwitterButton /> }
+      </View>
 
-      </View> */}
     </View>
   )
 }
@@ -164,11 +165,6 @@ const styles = StyleSheet.create({
     fontSize: 20,
     textAlign: 'center',
     margin: 10,
-  },
-  instructions: {
-    textAlign: 'center',
-    color: '#333333',
-    marginBottom: 5,
   },
   button: {
     height: 40,

@@ -31,10 +31,7 @@ export default class TwitterButton extends Component {
   }
   
   _twitterSignIn = async () => {
-
-    const a = 1
-
-
+    
     await RNTwitterSignIn.init(Constants.TWITTER_COMSUMER_KEY, Constants.TWITTER_CONSUMER_SECRET)
 
     try {
@@ -80,9 +77,6 @@ export default class TwitterButton extends Component {
     //   }
     // )
   } 
-
-
-
 
   handleLogout = () => {
     console.log("logout")
