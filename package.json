@@ -16,6 +16,7 @@
     "@react-native-community/async-storage": "^1.7.1",
     "@react-native-firebase/app": "6.2.0",
     "@react-native-firebase/auth": "6.2.0",
+    "@react-native-firebase/firestore": "6.2.0",
     "base-64": "^0.1.0",
     "buffer": "^5.4.3",
     "epubjs-rn": "file:./epubjs-rn-0.1.5.tgz",

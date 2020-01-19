@@ -35,14 +35,19 @@ const firebaseCredentials = Platform.select({
 
 type Props = {};
 
-import { Epub, Streamer } from "epubjs-rn";
-import {TopBar} from './src/components/TopBar';
+import { Epub, Streamer } from "epubjs-rn"
+import {TopBar} from './src/components/TopBar'
+import {Nav} from './src/components/Nav'
+
+import firestore from '@react-native-firebase/firestore';
+ 
+// Read the users documents
 
 export default function App () {
 
   const [streamer, setStreamer] = useState( new Streamer() )
   const [flow, setFlow] = useState('paginated')
-  const [location, setLocation] = useState(8)
+  const [location, setLocation] = useState(16)
   const [url, setUrl] = useState("https://s3-ap-southeast-2.amazonaws.com/www.readvise.me/judgement.epub")
   const [src, setSrc] = useState('')
 
@@ -52,6 +57,8 @@ export default function App () {
   const [booksPaths, setBookPaths] = useState([])
 
   const [book, setBook] = useState(null)
+
+  const [isNavVisible, setIsNavVisible] = useState(false)
 
   useEffect( () => {
     async function streamerStart() {
@@ -63,33 +70,83 @@ export default function App () {
     // setup async function and call it immediately, otherwise got warning if doing
     // useEffect( async() => {}
     streamerStart()
-
-    
   }, [])
 
+
+  useEffect( () => {
+    async function testFirestore() {
+      const querySnapshot = await firestore()
+        .collection('users')
+        .get();
+      
+      console.log('Total users', querySnapshot.size);
+      console.log('User Documents', querySnapshot.docs);
+
+    }
+
+    testFirestore()
+  }, [])
+
+
+
   return (
-    <View style={styles.container}>
+    <View style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between'}}>
      
-      <Epub style={styles.reader}
-        height={'100%'}
-
-        fontSize={'140%'}
-        src={src}
-        flow={flow}
-        location={location}
-        origin={origin}
-        onReady={(book) => {
-          setTitle( book.package.metadata.title )
-          setToc( book.navigation.toc )
-          setBook( book )
-
-        }}
-        ></Epub>
-
-      <View style={[styles.bar, {top: 0}]} >
-        <TopBar title={title} style={styles.topBar} />
+      <View style={{flex: 8, top: 40, paddingBottom: 20}} >
+        <Epub
+          fontSize={'120%'}
+          src={src}
+          flow={flow}
+          location={location}
+          origin={origin}
+          onReady={(book) => {
+            setTitle( book.package.metadata.title )
+            setToc( book.navigation.toc )
+            setBook( book )
+          }}
+          onLongPress={() => { 
+            console.log('onLongPress')
+          }}
+          onLocationChange={ async (newLocation) => {
+            console.log('-------- newLocation2', newLocation)
+            await firestore().collection("currentLocation").add({
+              user: 'don',
+              currentLocation: JSON.stringify(newLocation)
+            })
+            .then(function(docRef) {
+                console.log("currentLocation written with ID: ",newLocation);
+            })
+            .catch(function(error) {
+                console.error("Error adding currentLocation: ", error);
+            });
+          }}
+          ></Epub>
       </View>
-        <TwitterButton style={styles.button} />
+
+      <View style={{position:"absolute",
+        left:0,
+        right:0,
+        height:55,
+        flex: 1}} >
+        <TopBar title={title} onNavButtonPressed={() => setIsNavVisible(true)}  />
+      </View>
+
+      <View>
+        <Nav isVisible={isNavVisible} setIsVisible={setIsNavVisible} 
+              toc={toc} 
+              displayFunc={(newLoc) => {
+                console.log('=============== newLoc', newLoc)
+                setLocation(newLoc) }
+              } 
+        />
+
+
+      </View>
+
+      {/* <View style={{flex: 1, height: 20}}>
+        <TwitterButton />
+
+      </View> */}
     </View>
   )
 }
@@ -99,7 +156,7 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'column',
 
-    // justifyContent: 'center',
+    justifyContent: 'space-between',
     // alignItems: 'center',
     // backgroundColor: '#F5FCFF',
   },
@@ -119,9 +176,9 @@ const styles = StyleSheet.create({
 
   },
   reader: {
-    flex: 1,
-    top: 100,
-    position: "absolute",
+    flex: 10,
+    // top: 100,
+    //position: "absolute",
     // marginTop: 200, 
     alignSelf: 'stretch',
     backgroundColor: '#3F3F3C'
@@ -130,12 +187,9 @@ const styles = StyleSheet.create({
     position:"absolute",
     left:0,
     right:0,
-    height:55
+    height:55,
+    flex: 1
   },
-
-
-  
-
   topBar: {
     height: 100
   }

@@ -28,7 +28,7 @@ const styles = StyleSheet.create({
         paddingTop: 40,
       },
       android: {
-        paddingTop: 24,
+        paddingTop: 0,
       },
     }),
     top: 0,
@@ -37,8 +37,7 @@ const styles = StyleSheet.create({
         height: 84,
       },
       android: {
-        height: 74,
-        
+        height: 52,
       },
     }),
     right: 0,
@@ -69,12 +68,12 @@ const styles = StyleSheet.create({
     height: 30,
   }
 });
-export const TopBar = ({title, onBackButtonPressed, onOpenButtonPressed, onRightButtonPressed, onInfoButtonPressed}) => {
+export const TopBar = ({title, onNavButtonPressed, onOpenButtonPressed, onRightButtonPressed, onInfoButtonPressed}) => {
     return (
 
         <Animated.View style={styles.header}>
           <TouchableOpacity style={styles.backButton}
-              onPress={onBackButtonPressed}>
+              onPress={onNavButtonPressed}>
               <Icon name="navicon" size={30} />
           </TouchableOpacity>
 

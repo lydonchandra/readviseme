@@ -31,7 +31,7 @@ export default class TwitterButton extends Component {
   }
   
   _twitterSignIn = async () => {
-      
+
     const a = 1
 
 
@@ -112,6 +112,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#1b95e0',
     color: 'white',
     width: 200,
-    height: 50
+    height: 50,
+    flex: 1
   }
 })
