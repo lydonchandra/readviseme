@@ -15,9 +15,6 @@ import { firebase } from '@react-native-firebase/auth';
 
 const { TwitterAuthProvider } = firebase.auth;
 
-
-
-
 const Constants = {
   //Dev Parse keys
   TWITTER_COMSUMER_KEY: "Es053ZYyEDsw9hMnuXQV0vtRu",

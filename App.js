@@ -25,6 +25,7 @@ import {TopBar} from './src/components/TopBar'
 import {Nav} from './src/components/Nav'
 import {Settings} from './src/components/Settings'
 import TwitterButton from './TwitterButton';
+import { SignOutTwitter, SignInTwitter } from './src/components/Twitter';
 
 export default function App () {
 
@@ -70,18 +71,21 @@ export default function App () {
   }, [])
 
 
-  // useEffect( () => {
-  //   async function testFirestore() {
-  //     const querySnapshot = await firestore()
-  //       .collection('users')
-  //       .get();
-      
-  //     console.log('Total users', querySnapshot.size);
-  //     console.log('User Documents', querySnapshot.docs);
+  useEffect( () => {
+    async function testFirestore() {
+      var docRef = firestore().collection("currentBooks").doc("currentLocations");
+      var doc = await docRef.get()
 
-  //   }
-  //   testFirestore()
-  // }, [])
+      if (doc.exists) {
+        console.log("Document data:", doc.data());
+        setLocation( doc.href )
+      } else {
+          // doc.data() will be undefined in this case
+          console.log("No such document!");
+      }
+    }
+    testFirestore()
+  }, [])
 
   return (
     <View style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between'}}>
@@ -104,16 +108,19 @@ export default function App () {
           }}
           onLocationChange={ async (newLocation) => {
             console.log('-------- newLocation2', newLocation)
-            await firestore().collection("currentLocation").add({
-              user: 'don',
-              currentLocation: JSON.stringify(newLocation)
-            })
-            .then(function(docRef) {
-                console.log("currentLocation written with ID: ",newLocation);
-            })
-            .catch(function(error) {
-                console.error("Error adding currentLocation: ", error);
-            });
+
+            if( user && user.uid ) {
+              await firestore().collection("currentBooks").doc("currentLocations").set({
+                user: user.uid,
+                currentLocation: JSON.stringify(newLocation)
+              })
+              .then(function(docRef) {
+                  console.log("currentLocation written with ID: ",newLocation);
+              })
+              .catch(function(error) {
+                  console.error("Error adding currentLocation: ", error);
+              });
+            }
           }}
           ></Epub>
       </View>
@@ -129,8 +136,13 @@ export default function App () {
           onSettingsButtonPressed={() => {
             setIsSettingsVisible(true)
           }}
-          onSignInButtonPressed={() => {
-            
+          onSignOutButtonPressed={ async () => {
+            console.log('SignOutTwitter')
+            await SignOutTwitter()
+            setUser( null )
+          }}
+          onSignInButtonPressed={ async() => {
+            await SignInTwitter()
         }}  />
       </View>
 

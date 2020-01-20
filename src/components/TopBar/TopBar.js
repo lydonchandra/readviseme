@@ -69,7 +69,7 @@ const styles = StyleSheet.create({
   }
 });
 
-export const TopBar = ({title, user, onNavButtonPressed, onOpenButtonPressed, onSettingsButtonPressed, onInfoButtonPressed, onSignInButtonPressed}) => {
+export const TopBar = ({title, user, onNavButtonPressed, onOpenButtonPressed, onSettingsButtonPressed, onInfoButtonPressed, onSignInButtonPressed, onSignOutButtonPressed}) => {
     return (
 
         <Animated.View style={styles.header}>
@@ -85,10 +85,19 @@ export const TopBar = ({title, user, onNavButtonPressed, onOpenButtonPressed, on
 
           <Text style={styles.title}>{title}</Text>
 
+          {!user && (
           <TouchableOpacity style={styles.backButton}
                             onPress={onSignInButtonPressed}>
             <Icon name="sign-in" size={30} />
           </TouchableOpacity>
+          )}
+
+          {user && (
+          <TouchableOpacity style={styles.backButton}
+                            onPress={onSignOutButtonPressed}>
+            <Icon name="sign-out" size={30} />
+          </TouchableOpacity>
+          )}
 
           <TouchableOpacity style={styles.backButton}
                             onPress={onSettingsButtonPressed}>
